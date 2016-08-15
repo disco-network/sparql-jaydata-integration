@@ -1,0 +1,16 @@
+{
+    "extends": "tslint:recommended",
+    "rules": {
+        "curly": false,
+        "no-console": [false],
+        "forin": false,
+        "interface-name": [
+            false
+        ],
+        "one-line": [
+            true, "check-open-brace"
+        ],
+        "object-literal-sort-keys": false,
+        "no-string-literal": false
+    }
+}

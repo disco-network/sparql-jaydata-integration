@@ -1,0 +1,32 @@
+{
+  "name": "sparql-jaydata-integration",
+  "version": "1.0.0",
+  "dependencies": {
+    "odata-rdf-interface": "git+https://github.com/disco-network/odata-rdf-interface.git"
+  },
+  "description": "Demonstration of the integration of the Sparql-to-OData adapter with JayData.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/disco-network/sparql-jaydata-integration.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/disco-network/sparql-jaydata-integration/issues"
+  },
+  "homepage": "https://github.com/disco-network/sparql-jaydata-integration#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^3.0.1",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.13.6",
+    "mocha": "^3.0.2",
+    "sinon": "^1.17.5",
+    "tslint": "^3.14.0"
+  }
+}
