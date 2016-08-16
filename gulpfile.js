@@ -6,11 +6,13 @@ var gulp = require('gulp'),
 
 var tsProjectForJs = tsc.createProject("tsconfig.json");
 var tsProjectForDts = tsc.createProject("tsconfig.json");
-gulp.task('build', ['build-js']);
-gulp.task('build-js', function () {
+var tsProjectForClientJs = tsc.createProject("tsconfig-client.json");
+gulp.task('build', ['build-server']);
+gulp.task('build-server', function () {
   return gulp.src([
     './**/**.ts',
     '!./lib/**',
+    '!./client/**',
     '!./node_modules/**'
   ])
     .pipe(sourcemaps.init())
@@ -25,6 +27,15 @@ gulp.task('build-js', function () {
       }
     }))
     .pipe(gulp.dest('lib'));
+})
+gulp.task('build-client', function () {
+  return gulp.src([
+    './typings/**/**.ts',
+    './client/**/**.ts',
+  ])
+    .pipe(tsc(tsProjectForClientJs))
+    .js
+    .pipe(gulp.dest('client'));
 })
 
 gulp.task('tests-no-build', function () {
