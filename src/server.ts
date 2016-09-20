@@ -1,11 +1,11 @@
 import connect = require("connect");
 import config = require("./config");
 
-import { IHttpRequestHandler, IHttpResponseSender } from "odata-rdf-interface/lib/src/odata/http";
+import { IHttpRequestHandler, IHttpResponseSender } from "odata-rdf-interface/odata";
 
-import { GetHandler, OptionsHandler } from "odata-rdf-interface/lib/src/bootstrap/adapter/queryengine";
-import { Schema } from "odata-rdf-interface/lib/src/odata/schema";
-import { SparqlProvider } from "odata-rdf-interface/lib/src/sparql/sparql_provider";
+import { GetHandler, OptionsHandler } from "odata-rdf-interface/bootstrap/adapter/queryengine";
+import { Schema } from "odata-rdf-interface/odata/schema";
+import { SparqlProvider } from "odata-rdf-interface/sparql/sparql_provider";
 
 import rdfstore = require("rdfstore");
 
