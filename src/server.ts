@@ -1,32 +1,38 @@
 import connect = require("connect");
 import config = require("./config");
 
-import { IHttpRequestHandler, IHttpResponseSender } from "odata-rdf-interface/odata";
+import { IHttpRequestHandler, IHttpResponseSender } from "odata-rdf-interface/lib/odata";
 
-import { GetHandler, OptionsHandler } from "odata-rdf-interface/bootstrap/adapter/queryengine";
-import { Schema } from "odata-rdf-interface/odata/schema";
-import { SparqlProvider } from "odata-rdf-interface/sparql/sparql_provider";
+import { GetHandler, OptionsHandler, PostHandler } from "odata-rdf-interface/lib/bootstrap/adapter/queryengine";
+import { Schema } from "odata-rdf-interface/lib/odata/schema";
+import { SparqlProvider } from "odata-rdf-interface/lib/sparql/sparql_provider";
 
 import rdfstore = require("rdfstore");
+import bodyParser = require("body-parser");
 
 let store = null;
 let provider;
-let storeName = "http://datokrat.sirius.uberspace.de/disco-test";
+let storeName = "http://disco.paulr.de";
 let schema = new Schema();
 
 let app = connect();
 
+let getHandler: GetHandler;
+let optionsHandler: OptionsHandler;
+let postHandler: PostHandler;
+
+app.use(bodyParser.text());
+
 app.use(config.publicRelativeServiceDirectory + "/", function(req, res, next) {
-  let engine: IHttpRequestHandler;
-  let responseSender: IHttpResponseSender = new ResponseSender(res);
-  if (req.method === "GET") {
-    engine = new GetHandler(schema, provider, responseSender);
+  let requestHandler: IHttpRequestHandler;
+  switch (req.method) {
+    case "GET": requestHandler = getHandler; break;
+    case "POST": requestHandler = postHandler; break;
+    case "OPTIONS": requestHandler = optionsHandler; break;
+    default: res.send(400, "Unknown method"); return;
   }
-  else if (req.method === "OPTIONS") {
-    engine = new OptionsHandler(responseSender);
-  }
-  else res.send(403);
-  engine.query(convertHttpRequest(req));
+
+  requestHandler.query(convertHttpRequest(req), new ResponseSender(res));
 });
 
 class ResponseSender implements IHttpResponseSender {
@@ -57,7 +63,7 @@ class ResponseSender implements IHttpResponseSender {
 function convertHttpRequest(req) {
   return {
     relativeUrl: req.url,
-    body: "@todo",
+    body: req.body,
   };
 }
 
@@ -127,6 +133,11 @@ function createLiteral(str) {
 
 function startServer() {
   provider = new SparqlProvider(store, storeName);
+
+  getHandler = new GetHandler(schema, provider, storeName);
+  postHandler = new PostHandler(schema, provider, storeName);
+  optionsHandler = new OptionsHandler();
+
   app.listen(config.port);
   console.log("server is listening on port " + config.port);
 }

@@ -17,3 +17,7 @@ declare module "disco.ontology" {
     let x: any;
     export = x;
 }
+
+declare module "body-parser" {
+    export function text(options?): (req, res, next) => void;
+}
