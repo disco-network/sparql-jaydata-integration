@@ -18,6 +18,12 @@ declare module "disco.ontology" {
     export = x;
 }
 
-declare module "body-parser" {
-    export function text(options?): (req, res, next) => void;
+declare module "raw-body" {
+    const x: any;
+    export = x;
+}
+
+declare module "media-typer" {
+    const x: any;
+    export = x;
 }

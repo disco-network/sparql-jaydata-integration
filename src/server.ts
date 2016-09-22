@@ -7,8 +7,9 @@ import { GetHandler, OptionsHandler, PostHandler } from "odata-rdf-interface/lib
 import { Schema } from "odata-rdf-interface/lib/odata/schema";
 import { SparqlProvider } from "odata-rdf-interface/lib/sparql/sparql_provider";
 
-import rdfstore = require("rdfstore");
-import bodyParser = require("body-parser");
+import * as rdfstore from "rdfstore";
+import * as getRawBody from "raw-body";
+import * as typer from "media-typer";
 
 let store = null;
 let provider;
@@ -21,18 +22,28 @@ let getHandler: GetHandler;
 let optionsHandler: OptionsHandler;
 let postHandler: PostHandler;
 
-app.use(bodyParser.text());
+app.use(rawBody);
 
 app.use(config.publicRelativeServiceDirectory + "/", function(req, res, next) {
   let requestHandler: IHttpRequestHandler;
+  let responseSender: IHttpResponseSender;
   switch (req.method) {
-    case "GET": requestHandler = getHandler; break;
-    case "POST": requestHandler = postHandler; break;
-    case "OPTIONS": requestHandler = optionsHandler; break;
+    case "GET":
+      requestHandler = getHandler;
+      responseSender = new ResponseSender(res);
+      break;
+    case "POST":
+      requestHandler = postHandler;
+      responseSender = new ResponseSender(res);
+      break;
+    case "OPTIONS":
+      requestHandler = optionsHandler;
+      responseSender = new OptionsResponseSender(res);
+      break;
     default: res.send(400, "Unknown method"); return;
   }
 
-  requestHandler.query(convertHttpRequest(req), new ResponseSender(res));
+  requestHandler.query(convertHttpRequest(req), responseSender);
 });
 
 class ResponseSender implements IHttpResponseSender {
@@ -40,7 +51,9 @@ class ResponseSender implements IHttpResponseSender {
   private code: number;
   private headers: { [id: string]: string } = {};
 
-  constructor(private res) {}
+  constructor(private res) {
+    this.sendHeader("Access-Control-Allow-Origin", "*");
+  }
 
   public sendStatusCode(code: number) {
     this.code = code;
@@ -60,11 +73,41 @@ class ResponseSender implements IHttpResponseSender {
   }
 }
 
+class OptionsResponseSender extends ResponseSender {
+  constructor(res) {
+    super(res);
+    super.sendHeader("Access-Control-Allow-Headers",
+                    "MaxDataServiceVersion, DataServiceVersion, Authorization, Accept,\
+                     Authorization, odata-maxversion, content-id, odata-version, content-type");
+  }
+
+  public sendHeader(key: string, value: string) {
+    if (key !== "Access-Control-Allow-Headers")
+      super.sendHeader(key, value);
+  }
+}
+
 function convertHttpRequest(req) {
   return {
     relativeUrl: req.url,
     body: req.body,
   };
+}
+
+function rawBody(req, res, next) {
+  if (req.headers["content-type"]) {
+    getRawBody(req, {
+      length: req.headers["content-length"],
+      limit: "1mb",
+      encoding: typer.parse(req.headers["content-type"]).parameters.charset || "utf8",
+    },
+    (err, text) => {
+      if (err) return next(err);
+      req.body = text;
+      next();
+    });
+  }
+  else next();
 }
 
 rdfstore.create(function(error, st) {

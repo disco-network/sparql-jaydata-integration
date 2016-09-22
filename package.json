@@ -4,9 +4,10 @@
   "description": "Demonstration of the integration of the Sparql-to-OData adapter with JayData.",
   "dependencies": {
     "abnfjs": "git+https://git@github.com/datokrat/abnfjs.git",
-    "body-parser": "^1.15.2",
     "connect": "^3.4.1",
+    "media-typer": "^0.3.0",
     "odata-rdf-interface": "git+https://github.com/disco-network/odata-rdf-interface.git",
+    "raw-body": "^2.1.7",
     "rdfstore": "git+https://git@github.com/disco-network/rdfstore-js.git"
   },
   "devDependencies": {
