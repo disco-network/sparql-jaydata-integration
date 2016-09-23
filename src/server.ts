@@ -13,7 +13,7 @@ import * as typer from "media-typer";
 
 let store = null;
 let provider;
-let storeName = "http://disco.paulr.de";
+let storeName = "http://test.disco-network.org/";
 let schema = new Schema();
 
 let app = connect();
@@ -47,12 +47,14 @@ app.use(config.publicRelativeServiceDirectory + "/", function(req, res, next) {
 });
 
 class ResponseSender implements IHttpResponseSender {
-  private body: string;
-  private code: number;
-  private headers: { [id: string]: string } = {};
+  protected body: string;
+  protected code: number;
+  protected headers: { [id: string]: string } = {};
 
-  constructor(private res) {
+  constructor(protected res) {
     this.sendHeader("Access-Control-Allow-Origin", "*");
+    // @todo move to odata-rdf-interface
+    this.sendHeader("Content-Type", "application/json");
   }
 
   public sendStatusCode(code: number) {
@@ -84,6 +86,11 @@ class OptionsResponseSender extends ResponseSender {
   public sendHeader(key: string, value: string) {
     if (key !== "Access-Control-Allow-Headers")
       super.sendHeader(key, value);
+  }
+
+  public finishResponse() {
+    this.res.writeHeader(this.code, this.headers);
+    this.res.end();
   }
 }
 
