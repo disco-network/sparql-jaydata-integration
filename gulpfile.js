@@ -5,9 +5,8 @@ var gulp = require('gulp'),
   sourcemaps = require('gulp-sourcemaps');
 
 var tsProjectForJs = tsc.createProject("tsconfig.json");
-var tsProjectForDts = tsc.createProject("tsconfig.json");
 var tsProjectForClientJs = tsc.createProject("tsconfig-client.json");
-gulp.task('build', ['build-server']);
+gulp.task('build', ['build-server', 'build-client']);
 gulp.task('build-server', function () {
   return gulp.src([
     './**/**.ts',
@@ -16,13 +15,13 @@ gulp.task('build-server', function () {
     '!./node_modules/**'
   ])
     .pipe(sourcemaps.init())
-    .pipe(tsc(tsProjectForJs))
+    .pipe(tsProjectForJs())
     .js
     .pipe(sourcemaps.write('../maps', {
       includeContent: false,
       sourceRoot: function (file) {
         // needed to fix relative path in sourceMaps
-        var path = '../'.repeat((file.relative.match(/\//g) || []).length + 1);
+        var path = '../'.repeat((file.relative.match(/\//g) || []).length);
         return path;
       }
     }))
@@ -33,7 +32,7 @@ gulp.task('build-client', function () {
     './typings/**/**.ts',
     './client/**/**.ts',
   ])
-    .pipe(tsc(tsProjectForClientJs))
+    .pipe(tsProjectForClientJs())
     .js
     .pipe(gulp.dest('client'));
 })
